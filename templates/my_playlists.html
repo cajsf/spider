@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Playlists</title>
+    <!-- jQuery 추가 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>My Playlists</h1>
+        <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#createPlaylistModal">
+            Create New Playlist
+        </button>
+        <ul class="list-group">
+            {% for playlist in playlists %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>{{ playlist.playlist_name }}</span>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm toggle-songs" data-toggle="collapse" data-target="#songs-{{ playlist._id }}" aria-expanded="false" aria-controls="songs-{{ playlist._id }}">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deletePlaylistModal" data-playlist-id="{{ playlist._id }}" data-playlist-name="{{ playlist.playlist_name }}">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse" id="songs-{{ playlist._id }}">
+                    <ul class="list-group mt-2">
+                        {% for song in playlist.songs %}
+                        <li class="list-group-item">{{ song.track }} - {{ song.artist }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Create Playlist Modal -->
+    <div class="modal fade" id="createPlaylistModal" tabindex="-1" role="dialog" aria-labelledby="createPlaylistModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createPlaylistModalLabel">Create New Playlist</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="createPlaylistForm" method="POST" action="{{ url_for('create_playlist') }}">
+                        <div class="form-group">
+                            <label for="playlist_name">Playlist Name</label>
+                            <input type="text" class="form-control" id="playlist_name" name="playlist_name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Playlist Modal -->
+    <div class="modal fade" id="deletePlaylistModal" tabindex="-1" role="dialog" aria-labelledby="deletePlaylistModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePlaylistModalLabel">Delete Playlist</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the playlist <strong id="playlistName"></strong>?</p>
+                    <form id="deletePlaylistForm" method="POST" action="{{ url_for('delete_playlist') }}">
+                        <input type="hidden" name="playlist_id" id="playlistId">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        $('.toggle-songs').on('click', function() {
+            var icon = $(this).find('i');
+            icon.toggleClass('bi-chevron-down bi-chevron-up');
+        });
+
+        $('#deletePlaylistModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var playlistId = button.data('playlist-id');
+            var playlistName = button.data('playlist-name');
+
+            console.log('Playlist ID:', playlistId); // 디버그 정보
+
+            var modal = $(this);
+            modal.find('#playlistId').val(playlistId);
+            modal.find('#playlistName').text(playlistName);
+
+            console.log('Modal Playlist ID:', modal.find('#playlistId').val()); // 디버그 정보
+        });
+
+        $('#deletePlaylistForm').on('submit', function() {
+            console.log('Form submitted with playlist ID:', $('#playlistId').val()); // 디버그 정보
+        });
+    });
+    </script>
+</body>
+</html>
+{% endblock %}

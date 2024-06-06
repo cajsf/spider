@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Search Song</h1>
+    <form method="POST" action="{{ url_for('search_song') }}">
+        <div class="form-group">
+            <label for="song_title">Song Title</label>
+            <input type="text" class="form-control" id="song_title" name="song_title" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    {% if song_info %}
+    <div class="mt-5">
+        <h2>Song Information</h2>
+        <p><strong>Title:</strong> {{ song_info['title'] }}</p>
+        <p><strong>Artist:</strong> {{ song_info['artist'] }}</p>
+        <p><strong>Description:</strong> {{ song_info['description'] }}</p>
+
+        <h3>Save to Playlist</h3>
+        <form method="POST" action="{{ url_for('save_to_playlist') }}">
+            <input type="hidden" name="track" value="{{ song_info['title'] }}">
+            <input type="hidden" name="artist" value="{{ song_info['artist'] }}">
+            <div class="form-group">
+                <label for="playlist">Select Playlist</label>
+                <select class="form-control" id="playlist" name="playlist">
+                    {% for playlist in playlists %}
+                    <option value="{{ playlist.playlist_name }}">{{ playlist.playlist_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="new_playlist">Or Create New Playlist</label>
+                <input type="text" class="form-control" id="new_playlist" name="new_playlist">
+            </div>
+            <button type="submit" class="btn btn-primary">Save to Playlist</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

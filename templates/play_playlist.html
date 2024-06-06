@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Play Playlist</title>
+</head>
+<body>
+    <h1>Play Playlist</h1>
+    <form id="playPlaylistForm">
+        <input type="hidden" name="playlist_id" id="playlist_id" value="YOUR_PLAYLIST_ID">
+        <button type="button" onclick="playPlaylist()">Play Playlist</button>
+    </form>
+
+    <div id="player"></div>
+
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        var videoIds = [];
+        var currentVideoIndex = 0;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '360',
+                width: '640',
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            // 플레이리스트 버튼 클릭 시에만 재생 시작
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) {
+                currentVideoIndex++;
+                if (currentVideoIndex < videoIds.length) {
+                    player.loadVideoById(videoIds[currentVideoIndex]);
+                }
+            }
+        }
+
+        function playPlaylist() {
+            var playlist_id = document.getElementById('playlist_id').value;
+
+            fetch('/play_playlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ playlist_id: playlist_id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    videoIds = data.video_ids;
+                    currentVideoIndex = 0;
+                    if (videoIds.length > 0) {
+                        player.loadVideoById(videoIds[currentVideoIndex]);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

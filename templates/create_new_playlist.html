@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Welcome, {{ session['username'] }}!</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    <button id="create-playlist">Create New Playlist</button>
+
+    <div id="playlist-form" style="display:none;">
+        <input type="text" id="playlist-name" placeholder="Playlist Name">
+        <button id="save-playlist">Save Playlist</button>
+    </div>
+
+    <div id="add-song-form" style="display:none;">
+        <input type="text" id="song-query" placeholder="Search Song">
+        <button id="search-song">Search</button>
+        <div id="song-results"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#create-playlist').on('click', function() {
+                $('#playlist-form').toggle();
+            });
+
+            $('#save-playlist').on('click', function() {
+                var playlistName = $('#playlist-name').val();
+                $.ajax({
+                    url: '/create_playlist',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        username: '{{ session["username"] }}',
+                        playlist_name: playlistName
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Playlist created successfully!');
+                            $('#add-song-form').show();
+                        } else {
+                            alert('Failed to create playlist.');
+                        }
+                    }
+                });
+            });
+
+            $('#search-song').on('click', function() {
+                var query = $('#song-query').val();
+                $.ajax({
+                    url: '/search_song',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ query: query }),
+                    success: function(response) {
+                        if (response.success) {
+                            var songs = response.songs;
+                            $('#song-results').empty();
+                            songs.forEach(function(song) {
+                                $('#song-results').append(
+                                    `<div>
+                                        <p>${song.title} by ${song.artist}</p>
+                                        <button class="add-song" data-title="${song.title}" data-artist="${song.artist}">Add to Playlist</button>
+                                    </div>`
+                                );
+                            });
+
+                            $('.add-song').on('click', function() {
+                                var songTitle = $(this).data('title');
+                                var songArtist = $(this).data('artist');
+                                $.ajax({
+                                    url: '/add_song_to_playlist',
+                                    method: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
+                                        username: '{{ session["username"] }}',
+                                        playlist_name: $('#playlist-name').val(),
+                                        song_info: { title: songTitle, artist: songArtist }
+                                    }),
+                                    success: function(response) {
+                                        if (response.success) {
+                                            alert('Song added to playlist successfully!');
+                                        } else {
+                                            alert('Failed to add song to playlist.');
+                                        }
+                                    }
+                                });
+                            });
+                        } else {
+                            alert('Failed to search songs.');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

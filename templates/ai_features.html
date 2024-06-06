@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>AI Features</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="audio">Upload Audio File</label>
+            <input type="file" class="form-control" id="audio" name="audio" required>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Upload</button>
+    </form>
+    <hr>
+    <h3>Or select from uploaded files</h3>
+    <form method="POST" action="{{ url_for('process_existing_file') }}">
+        <div class="form-group">
+            <label for="existing_file">Select File</label>
+            <select class="form-control" id="existing_file" name="existing_file" required>
+                {% for file in uploaded_files %}
+                    <option value="{{ file }}">{{ file }}</option>
+                {% else %}
+                    <option disabled>No files available</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Process File</button>
+    </form>
+    <hr>
+    {% if song_info %}
+        <div class="alert alert-info mt-4">
+            <strong>Track:</strong> {{ song_info.track }}<br>
+            <strong>Artist:</strong> {{ song_info.artist }}
+            <form method="POST" action="{{ url_for('save_to_playlist') }}">
+                <input type="hidden" name="track" value="{{ song_info.track }}">
+                <input type="hidden" name="artist" value="{{ song_info.artist }}">
+                <div class="form-group">
+                    <label for="playlist">Select Playlist</label>
+                    {% if playlists %}
+                        <select class="form-control" id="playlist" name="playlist" required>
+                            {% for playlist in playlists %}
+                                <option value="{{ playlist.playlist_name }}">{{ playlist.playlist_name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="text" class="form-control" id="new_playlist" name="new_playlist" placeholder="Enter new playlist name" required>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Save to Playlist</button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

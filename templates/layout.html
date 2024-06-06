@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height: 40px;">
+            </a>
+            <ul class="navbar-nav ml-auto">
+                {% if session.get('username') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile') }}">
+                            {% if session.get('profile_picture') %}
+                                <img src="{{ url_for('static', filename='uploads_profile/' ~ session['profile_picture']) }}" class="rounded-circle" alt="User Image" width="30" height="30" onerror="this.onerror=null;this.src='https://via.placeholder.com/30';">
+                            {% else %}
+                                <img src="https://via.placeholder.com/30" class="rounded-circle" alt="User Image" width="30" height="30">
+                            {% endif %}
+                            {{ session['username'] }}
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <nav class="nav">
+        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+        <a class="nav-link" href="{{ url_for('my_playlists') }}">My Playlists</a>
+        <a class="nav-link" href="{{ url_for('popular_playlists') }}">Popular Playlists</a>
+        <a class="nav-link" href="{{ url_for('ai_features') }}">AI Features</a>
+        <a class="nav-link" href="{{ url_for('search_song_page') }}">Search</a>
+        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="flashModalLabel">Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {{ messages[0] }}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer bg-light text-center text-lg-start">
+        <div class="container p-4">
+            <p>Company Info | Terms of Service | Privacy Policy | Customer Support</p>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    $('#flashModal').modal('show');
+                {% endif %}
+            {% endwith %}
+        });
+    </script>
+</body>
+</html>

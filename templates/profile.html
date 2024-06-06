@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if user['profile_picture'] %}
+                        <img src="{{ url_for('static', filename='uploads_profile/' ~ user['profile_picture']) }}" class="rounded-circle img-fluid" alt="User Image" onerror="this.onerror=null;this.src='https://via.placeholder.com/150';">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150" class="rounded-circle img-fluid" alt="User Image">
+                    {% endif %}
+                    <h4 class="card-title mt-3">{{ user['username'] }}</h4>
+                    <p class="card-text">{{ user['email'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">프로필 정보</h5>
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <th scope="row">사용자 이름</th>
+                                <td>{{ user['username'] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">이메일</th>
+                                <td>{{ user['email'] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">가입일</th>
+                                <td>{{ user['created_at'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="{{ url_for('settings') }}" class="btn btn-primary">프로필 수정</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

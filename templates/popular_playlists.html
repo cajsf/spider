@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Popular Playlists</h1>
+    <ul class="list-group">
+        {% for playlist in playlists %}
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ playlist.playlist_name }}</span>
+                <div class="d-flex align-items-center">
+                    <form action="{{ url_for('like_playlist') }}" method="POST">
+                        <input type="hidden" name="playlist_id" value="{{ playlist._id }}">
+                        <button type="submit" class="btn btn-outline-primary btn-sm like-btn mr-2">
+                            Like <span class="badge badge-primary">{{ playlist.likes }}</span>
+                        </button>
+                    </form>
+                    <button class="btn btn-outline-secondary btn-sm toggle-songs" data-toggle="collapse" data-target="#songs-{{ playlist._id }}" aria-expanded="false" aria-controls="songs-{{ playlist._id }}">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="collapse" id="songs-{{ playlist._id }}">
+                <ul class="list-group mt-2">
+                    {% for song in playlist.songs %}
+                    <li class="list-group-item">{{ song.track }} - {{ song.artist }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('.like-btn').on('click', function(event) {
+        event.preventDefault();
+        var button = $(this);
+        var playlistId = button.siblings('input[name="playlist_id"]').val();
+        $.ajax({
+            url: '/like_playlist',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({playlist_id: playlistId}),
+            success: function(response) {
+                if (response.success) {
+                    var badge = button.find('.badge');
+                    var likes = parseInt(badge.text());
+                    if (response.action == 'liked') {
+                        likes += 1;
+                    } else if (response.action == 'unliked') {
+                        likes -= 1;
+                    }
+                    badge.text(likes);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
